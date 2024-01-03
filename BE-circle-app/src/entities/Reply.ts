@@ -18,6 +18,9 @@ export class Reply {
   @Column()
   content: string
 
+  @Column({ nullable: true })
+  image: string
+
   @ManyToOne(() => User, (user) => user.replies, {
     onUpdate: "CASCADE",
     onDelete: "CASCADE",

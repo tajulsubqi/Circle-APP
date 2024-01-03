@@ -16,6 +16,7 @@ class LikeServices {
       res.status(500).json({ error: "error while getting likes" })
     }
   }
+
   async findOne(req: Request, res: Response): Promise<Response> {
     try {
       const id = parseInt(req.params.id)
@@ -34,7 +35,8 @@ class LikeServices {
       const data = req.body
       const { error, value } = likeSchema.validate(data)
       if (error) {
-        return res.status(400).json({ error: error.details[0].message })
+        return res.status(400).json({ Error: `${error}` })
+        // return res.status(400).json({ error: error.details[0].message })
       }
 
       const likeSelected: Like | null = await this.LikeRepository.findOne({
@@ -49,6 +51,7 @@ class LikeServices {
       })
 
       if (likeSelected) {
+        //delete the like
         await this.LikeRepository.remove(likeSelected)
         return res.status(200).json({ message: "like deleted" })
       }
@@ -58,8 +61,8 @@ class LikeServices {
         thread: value.thread,
       })
 
-      const createLike = await this.LikeRepository.save(like)
-      return res.status(200).json(createLike)
+      const createdLike = await this.LikeRepository.save(like)
+      return res.status(200).json(createdLike)
     } catch (error) {
       console.log(error)
       return res.status(500).json({ error: "error while updating reply" })
@@ -73,9 +76,9 @@ class LikeServices {
         where: { id: id },
         relations: ["thread", "user"],
       })
-      if (!like) {
-        return res.status(404).json("Like not found")
-      }
+
+      if (!like) return res.status(404).json({ Error: "like ID not found" })
+      
       const likeDeleted = await this.LikeRepository.remove(like)
       return res.status(200).json(likeDeleted)
     } catch (error) {

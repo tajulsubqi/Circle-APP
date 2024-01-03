@@ -4,6 +4,9 @@ import threadRoutes from "./routes/ThreadRoute"
 import AuthRoutes from "./routes/AuthRoute"
 import { AppDataSource } from "./data-source"
 import { Request, Response, NextFunction } from "express"
+import replyRouter from "./routes/ReplyRoute"
+import likeRouter from "./routes/LikeRoute"
+import followRouter from "./routes/FollowRoute"
 
 const cors = require("cors")
 
@@ -15,8 +18,11 @@ AppDataSource.initialize().then(async () => {
   app.use(express.json())
 
   app.use("/api/v1", userRoutes)
-  app.use("/api/v1", threadRoutes)
   app.use("/api/v1", AuthRoutes)
+  app.use("/api/v1", threadRoutes)
+  app.use("api/v1", followRouter)
+  app.use("/api/v1", replyRouter)
+  app.use("api/v1", likeRouter)
 
   app.use((req, res) => {
     res.status(404).json({ error: "Not Found" })

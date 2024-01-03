@@ -1,4 +1,4 @@
-import ThreadLayout from "../layout/ThreadLayout"
+import ThreadLayout from "../layout/HomeLayout"
 
 const DetailPages = () => {
   return (

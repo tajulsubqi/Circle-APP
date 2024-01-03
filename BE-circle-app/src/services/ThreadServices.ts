@@ -1,21 +1,20 @@
 import { Request, Response } from "express"
 import { AppDataSource } from "../data-source"
 import { Thread } from "../entities/Thread"
-import { createTHreadSchema } from "../utils/validators/Thread"
 import cloudinary from "../middlewares/cloudinary/configCloudinary"
 import * as fs from "fs"
-import { log } from "console"
-
-interface MulterFile {
-  fileName: string
-}
 
 class ThreadService {
   private threadRepository = AppDataSource.getRepository(Thread)
 
   getAllThreads = async () => {
     try {
-      return await this.threadRepository.find({ relations: ["user"] })
+      return await this.threadRepository.find({
+        relations: ["user", "replies"],
+        order: {
+          id: "DESC",
+        },
+      })
     } catch (error) {
       throw new Error("Error fetching threads")
     }
@@ -27,7 +26,7 @@ class ThreadService {
         where: {
           id: threadId,
         },
-        relations: ["user"],
+        relations: ["user", "replies", "replies.user"],
       })
     } catch (error) {
       throw new Error("Error fetching thread by ID")
@@ -36,24 +35,27 @@ class ThreadService {
 
   createThreadWithImage = async (req: Request, res: Response): Promise<Response> => {
     try {
+      const userId = res.locals.loginSession.userId
       const newData = {
-        userId: req.body.userId,
+        userId,
         content: req.body.content,
-        image: "",   
+        image: "",
       }
       if (req.file) {
         const cloudinaryResponse = await cloudinary.uploader.upload(req.file.path, {
           folder: `/circle-app/thread/${newData.userId}`,
           tags: "circle-app,user,thread",
         })
-        newData.image = cloudinaryResponse.secure_url;
-        await fs.unlinkSync(req.file.path)
+        newData.image = cloudinaryResponse.secure_url
+        fs.unlinkSync(req.file.path)
       }
 
       const result = this.threadRepository.create({
-        ...newData
-      }) 
+        ...newData,
+      })
       console.log(result)
+
+      // save thread
       const saveThread = await this.threadRepository.save(result)
       return res.status(201).json({ code: 201, data: saveThread })
     } catch (error) {

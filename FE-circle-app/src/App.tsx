@@ -1,31 +1,28 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import Home from "./pages/Home"
-import RegisterForm from "./pages/Register"
-import LoginForm from "./pages/Login"
+import Home from "./pages/HomePages"
+import RegisterForm from "./pages/RegisterPages"
+import LoginForm from "./pages/LoginPages"
 import DetailPages from "./pages/DetailPages"
-import { USER_LOGIN } from "./store/slice/AuthSlice"
-import { useEffect } from "react"
-import { jwtDecode } from "jwt-decode"
-import { useDispatch } from "react-redux"
+
+import SearchPages from "./pages/SearchPages"
+import Follows from "./pages/FollowsPages"
+import ProfilePages from "./pages/ProfilePages"
+import PrivateRoute from "./lib/PrivateRoute"
 
 const App = () => {
-  const dispatch = useDispatch()
-  const token = localStorage.getItem("token")
-  useEffect(() => {
-    if (token) {
-      const data = jwtDecode(token)
-      dispatch(USER_LOGIN(data))
-    }
-  })
-
   return (
     <>
       <Router>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/detail/:id" element={<DetailPages />} />
-          <Route path="/register" element={<RegisterForm />} />
           <Route path="/Login" element={<LoginForm />} />
+          <Route path="/register" element={<RegisterForm />} />
+          <Route element={<PrivateRoute />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/detail/:id" element={<DetailPages />} />
+            <Route path="/search" element={<SearchPages />} />
+            <Route path="/follows" element={<Follows />} />
+            <Route path="/profile" element={<ProfilePages />} />
+          </Route>
         </Routes>
       </Router>
     </>

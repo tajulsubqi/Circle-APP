@@ -1,100 +1,74 @@
 import { Repository } from "typeorm"
+import { Follows } from "../entities/Follows"
 import { AppDataSource } from "../data-source"
-import { User } from "../entities/User"
 import { Request, Response } from "express"
-import { FollowSchema } from "../utils/validators/Thread"
 
 export default new (class FollowServices {
-  private readonly UserRepository: Repository<User> = AppDataSource.getRepository(User)
+  private readonly LikeRepository: Repository<Follows> =
+    AppDataSource.getRepository(Follows)
 
-  async followUser(req: Request, res: Response): Promise<Response> {
+  async find(req: Request, res: Response): Promise<Response> {
     try {
-      const loggedInUserId = res.locals.loginSession.user.id
-
-      const { error, value } = FollowSchema.validate(req.body)
-
-      if (error) {
-        return res.status(400).json({
-          code: 400,
-          message: "Invalid input. Please provide a valid user_id.",
-        })
-      }
-
-      const loggedInUser = await this.UserRepository.findOne({
-        where: { id: loggedInUserId },
-        relations: ["following"],
+      const follows = await this.LikeRepository.find({
+        relations: ["user"],
       })
-
-      const userToFollow = await this.UserRepository.findOne({
-        where: { id: value.user },
-      })
-
-      if (!loggedInUser || !userToFollow) {
-        return res.status(404).json({ code: 404, message: "User not found" })
-      }
-
-      const isAlreadyFollowing = loggedInUser.following.some(
-        (followedUser) => followedUser.id === value.user,
-      )
-
-      if (isAlreadyFollowing) {
-        loggedInUser.following = loggedInUser.following.filter(
-          (followedUser) => followedUser.id !== value.user,
-        )
-      } else {
-        loggedInUser.following.push(userToFollow)
-      }
-
-      await this.UserRepository.save(loggedInUser)
-
-      const message = isAlreadyFollowing
-        ? "Unfollowed successfully"
-        : "Followed successfully"
-
-      return res.status(200).json({ code: 200, message })
+      return res.status(200).json({ code: 200, data: follows })
     } catch (error) {
-      console.error(error)
-      return res.status(500).json({ code: 500, message: "Internal server error" })
+      res.status(500).json({ error: "error while getting follows" })
     }
   }
 
-  async getFollowingUsers(req: Request, res: Response): Promise<Response> {
+  async findOne(req: Request, res: Response): Promise<Response> {
     try {
-      const loggedInUserId = res.locals.loginSession.user.id
-
-      const loggedInUser = await this.UserRepository.findOne({
-        where: { id: loggedInUserId },
-        relations: ["following"],
+      const id = parseInt(req.params.id)
+      const follow = await this.LikeRepository.findOne({
+        where: { id: id },
+        relations: ["user"],
       })
-
-      if (!loggedInUser) {
-        return res.status(404).json({ code: 404, message: "User not found" })
-      }
-
-      return res.status(200).json({ code: 200, data: loggedInUser.following })
+      return res.status(200).json(follow)
     } catch (error) {
-      console.error(error)
-      return res.status(500).json({ code: 500, message: "Internal server error" })
+      return res.status(500).json(error)
     }
   }
 
-  async getFollowerUsers(req: Request, res: Response): Promise<Response> {
+  async create(req: Request, res: Response): Promise<Response> {
     try {
-      const loggedInUserId = res.locals.loginSession.user.id
-
-      const loggedInUser = await this.UserRepository.findOne({
-        where: { id: loggedInUserId },
-        relations: ["followers"],
-      })
-
-      if (!loggedInUser) {
-        return res.status(404).json({ code: 404, message: "User not found" })
-      }
-
-      return res.status(200).json({ code: 200, data: loggedInUser.followers })
+      const data = req.body
+      const follow = this.LikeRepository.create(data)
+      await this.LikeRepository.save(follow)
+      return res.status(201).json({ message: "follow created" })
     } catch (error) {
-      console.error(error)
-      return res.status(500).json({ code: 500, message: "Internal server error" })
+      return res.status(500).json(error)
+    }
+  }
+
+  async delete(req: Request, res: Response): Promise<Response> {
+    try {
+      const id = parseInt(req.params.id)
+      await this.LikeRepository.delete({ id: id })
+      return res.status(200).json({ message: "follow deleted" })
+    } catch (error) {
+      return res.status(500).json(error)
+    }
+  }
+
+  async update(req: Request, res: Response): Promise<Response> {
+    try {
+      const id = parseInt(req.params.id)
+      const data = req.body
+      await this.LikeRepository.update({ id: id }, data)
+      return res.status(200).json({ message: "follow updated" })
+    } catch (error) {
+      return res.status(500).json(error)
+    }
+  }
+
+  async count(req: Request, res: Response): Promise<Response> {
+    try {
+      const count = await this.LikeRepository.count()
+      return res.status(200).json({ count: count })
+    } catch (error) {
+      return res.status(500).json(error)
     }
   }
 })()

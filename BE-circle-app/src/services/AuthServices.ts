@@ -65,9 +65,22 @@ export default new (class AuthServices {
       }
 
       // Buat token JWT untuk autentikasi
-      const token = jwt.sign({ userId: user.id, email: user.email, fullname: user.fullname, username: user.username }, "my token", {
-        expiresIn: "1h",
-      })
+      const token = jwt.sign(
+        {
+          userId: user.id,
+          email: user.email,
+          fullname: user.fullname,
+          username: user.username,
+          profile_picture: user.profile_picture,
+          profile_description: user.profile_description,
+        },
+        "tajul-ganteng",
+        {
+          expiresIn: "1h",
+        },
+      )
+
+      // res.locals.loginSession = user
 
       // Kirim respons berhasil bersama dengan token
       return res.status(200).json({ token })

@@ -29,7 +29,8 @@ export const updateUserSchema = Joi.object({
 })
 
 export const createReplySchema = Joi.object({
-  thread: Joi.number(),
+  user_id: Joi.number(),
+  thread_id: Joi.number(),
   content: Joi.string(),
   image: Joi.string().allow("", null),
 })

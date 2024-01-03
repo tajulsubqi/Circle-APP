@@ -3,23 +3,11 @@ import ReplyServices from "../services/ReplyServices"
 
 class ReplyControllers {
   find(req: Request, res: Response) {
-    ReplyServices.find(req, res)
-  }
-
-  findOne(req: Request, res: Response) {
-    ReplyServices.findOne(req, res)
+    ReplyServices.findReply(req, res)
   }
 
   create(req: Request, res: Response) {
-    ReplyServices.create(req, res)
-  }
-
-  update(req: Request, res: Response) {
-    ReplyServices.update(req, res)
-  }
-
-  delete(req: Request, res: Response) {
-    ReplyServices.delete(req, res)
+    ReplyServices.createReply(req, res)
   }
 }
 

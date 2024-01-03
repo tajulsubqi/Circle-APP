@@ -2,16 +2,24 @@ import { Request, Response } from "express"
 import FollowServices from "../services/FollowServices"
 
 class FollowControllers {
-  followUser(req: Request, res: Response) {
-    FollowServices.followUser(req, res)
+  find(req: Request, res: Response) {
+    FollowServices.find(req, res)
   }
 
-  getFollowingUsers(req: Request, res: Response) {
-    FollowServices.getFollowingUsers(req, res)
+  findOne(req: Request, res: Response) {
+    FollowServices.findOne(req, res)
   }
 
-  getFollowerUsers(req: Request, res: Response) {
-    FollowServices.getFollowerUsers(req, res)
+  create(req: Request, res: Response) {
+    FollowServices.create(req, res)
+  }
+
+  delete(req: Request, res: Response) {
+    FollowServices.delete(req, res)
+  }
+
+  update(req: Request, res: Response) {
+    FollowServices.update(req, res)
   }
 }
 

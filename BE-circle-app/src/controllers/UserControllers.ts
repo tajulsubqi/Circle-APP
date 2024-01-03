@@ -2,53 +2,27 @@ import { Request, Response } from "express"
 import UserServices from "../services/UserServices"
 
 export default new (class UserController {
-  getAllUsers = async (req: Request, res: Response) => {
-    try {
-      const users = await UserServices.getAllUsers()
-      res.json(users)
-    } catch (error) {
-      console.log(error)
-
-      res.status(500).json({ error: "Internal Server Error" })
-    }
+  find(req: Request, res: Response) {
+    UserServices.find(req, res)
   }
 
-  getUserById = async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.id, 10)
-
-    try {
-      const user = await UserServices.getUserById(userId)
-
-      if (!user) {
-        return res.status(404).json({ error: "User not found" })
-      }
-
-      res.json(user)
-    } catch (error) {
-      res.status(500).json({ error: "Internal Server Error" })
-    }
+  findOne(req: Request, res: Response) {
+    UserServices.findOne(req, res)
   }
 
-  updateUser = async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.id, 10)
-    const userData = req.body
-
-    try {
-      const user = await UserServices.updateUser(userId, userData)
-      res.json(user)
-    } catch (error) {
-      res.status(500).json({ error: "Internal Server Error" })
-    }
+  create(req: Request, res: Response) {
+    UserServices.create(req, res)
   }
 
-  deleteUser = async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.id, 10)
+  update(req: Request, res: Response) {
+    UserServices.update(req, res)
+  }
 
-    try {
-      await UserServices.deleteUser(userId)
-      res.json({ message: "User deleted successfully" })
-    } catch (error) {
-      res.status(500).json({ error: "Internal Server Error" })
-    }
+  delete(req: Request, res: Response) {
+    UserServices.delete(req, res)
+  }
+
+  follow(req: Request, res: Response) {
+    UserServices.follow(req, res)
   }
 })()

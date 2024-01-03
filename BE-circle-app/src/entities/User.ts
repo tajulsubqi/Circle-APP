@@ -5,11 +5,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToMany,
+  JoinTable,
 } from "typeorm"
 import { Thread } from "./Thread"
 import { Like } from "./Like"
 import { Reply } from "./Reply"
-import { Follows } from "./Follows"
 
 @Entity({ name: "users" })
 export class User {
@@ -25,13 +26,16 @@ export class User {
   @Column({ unique: true })
   email: string
 
-  @Column()
+  @Column({ select: true })
   password: string
 
-  @Column({ nullable: true })
+  @Column({
+    default: "https://placehold.co/400",
+    nullable: true,
+  })
   profile_picture: string
 
-  @Column({ nullable: true })
+  @Column({ default: "hai from server", nullable: true })
   profile_description: string
 
   @CreateDateColumn({ type: "timestamp with time zone" })
@@ -40,18 +44,38 @@ export class User {
   @UpdateDateColumn({ type: "timestamp with time zone" })
   updated_at: Date
 
-  @OneToMany(() => Thread, (thread) => thread.user, { onDelete: "CASCADE" })
+  @OneToMany(() => Thread, (thread) => thread.user, {
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+  })
   threads: Thread[]
 
-  @OneToMany(() => Like, (like) => like.user, { onDelete: "CASCADE" })
+  @OneToMany(() => Like, (like) => like.user, {
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+  })
   likes: Like[]
 
-  @OneToMany(() => Reply, (reply) => reply.user, { onDelete: "CASCADE" })
+  @OneToMany(() => Reply, (reply) => reply.user, {
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+  })
   replies: Reply[]
 
-  @OneToMany(() => Follows, (follows) => follows.followed, { onDelete: "CASCADE" })
-  followers: Follows[]
+  @ManyToMany(() => User, (user) => user.following)
+  @JoinTable({
+    name: "followers",
+    joinColumn: {
+      name: "follower_id",
+      referencedColumnName: "id",
+    },
+    inverseJoinColumn: {
+      name: "following_id",
+      referencedColumnName: "id",
+    },
+  })
+  followers: User[]
 
-  @OneToMany(() => Follows, (follows) => follows.followers, { onDelete: "CASCADE" })
-  followed: Follows[]
+  @ManyToMany(() => User, (user) => user.followers)
+  following: User[]
 }

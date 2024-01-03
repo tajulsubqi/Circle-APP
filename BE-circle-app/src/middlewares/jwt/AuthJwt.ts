@@ -12,7 +12,7 @@ export default new (class AuthenticationMiddleware {
     const token = authorizanationHeader.split(" ")[1]
 
     try {
-      const loginSession = jwt.verify(token, "my token")
+      const loginSession = jwt.verify(token, "tajul-ganteng")
       res.locals.loginSession = loginSession
 
       next()
